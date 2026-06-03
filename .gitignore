@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Build output and caches
+.next/
+out/
+build/
+dist/
+coverage/
+__pycache__/
+*.py[cod]
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Local databases and runtime files
+*.sqlite3
+*.sqlite
+*.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Temporary agent/worktree folders
+frontend.worktrees/
