@@ -39,3 +39,4 @@ Thumbs.db
 
 # Temporary agent/worktree folders
 frontend.worktrees/
+frontend.git.backup/
