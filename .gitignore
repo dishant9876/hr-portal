@@ -44,3 +44,6 @@ frontend.git.backup/
 # User-uploaded media and collected static files
 backend/media/
 backend/staticfiles/
+
+# Local Netlify folder
+.netlify
