@@ -1,4 +1,4 @@
-django
+django==4.2.30
 
 djangorestframework
 djangorestframework-simplejwt
@@ -6,3 +6,6 @@ django-cors-headers
 djoser
 psycopg2-binary
 pillow
+gunicorn
+whitenoise
+dj-database-url

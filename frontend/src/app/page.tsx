@@ -1,52 +1,10 @@
 "use client";
-
-import { useMemo } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowRight, BriefcaseBusiness, UsersRound, ChartNoAxesCombined } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
-
+import ParallaxScene from "@/components/ParallaxScene";
 export default function Home() {
-  const router = useRouter();
-  const { role } = useAuthStore();
-
-  const targetPath = useMemo(() => {
-    if (role === "recruiter") return "/recruiter/dashboard";
-    if (role === "candidate") return "/candidate/dashboard";
-    return "/auth/login";
-  }, [role]);
-
-  const handleGetStarted = () => {
-    router.push(targetPath);
-  };
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4 py-10">
-      <div className="w-full max-w-6xl rounded-3xl bg-white p-10 shadow-xl ring-1 ring-slate-200">
-        <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-blue-600">TalentBridge</p>
-            <h1 className="mt-4 text-4xl font-bold text-slate-900">Hire smarter. Apply faster. Build stronger teams with TalentBridge.</h1>
-            <p className="mt-6 text-lg leading-8 text-slate-600">
-              TalentBridge streamlines hiring with recruiter dashboards, candidate tracking, job management, and seamless application workflows — all in one modern platform.
-            </p>
-            <button
-              onClick={handleGetStarted}
-              className="mt-8 rounded-2xl bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-            >
-              Get Started
-            </button>
-          </div>
-          <div className="rounded-3xl bg-slate-950 p-8 text-white shadow-lg">
-            <h2 className="text-2xl font-semibold">Everything your hiring workflow needs.</h2>
-            <ul className="mt-6 space-y-4 text-slate-300">
-              <li>✔ Manage jobs and applications from one dashboard</li>
-              <li>✔ Dedicated portals for recruiters and candidates</li>
-              <li>✔ Track applications through every hiring stage</li>
-              <li>✔ Secure authentication with role-based access</li>
-              <li>✔ Modern, scalable platform built for growing teams</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const { role, hydrated } = useAuthStore();
+  const target = hydrated && role ? `/${role}/dashboard` : "/auth/register";
+  return <main className="landing-shell"><section className="landing-hero"><div className="landing-copy"><div className="eyebrow"><span className="status-dot" /> PEOPLE & POSSIBILITIES, CONNECTED</div><h1>A better place<br />to find your<br /><span>next great chapter.</span></h1><p>From your next career move to your next great hire. Bring your ambitions to life with a workspace built around people.</p><Link className="primary-button" href={target}>Find your next chapter <ArrowRight size={17} /></Link></div><div className="landing-visual"><ParallaxScene /></div></section><section className="landing-features" aria-label="Platform features">{[{ icon: BriefcaseBusiness, title: "Opportunity, without the noise.", text: "Explore open roles and find the opportunities that fit your experience and ambition." },{ icon: UsersRound, title: "Great teams start here.", text: "Publish your roles, meet your candidates, and manage hiring from one thoughtful workspace." },{ icon: ChartNoAxesCombined, title: "Every step, in perspective.", text: "Keep applications organized and follow progress through every stage of the hiring journey." }].map(({icon:Icon,title,text}) => <article className="landing-feature" key={title}><Icon size={23} strokeWidth={1.5} /><h2>{title}</h2><p>{text}</p></article>)}</section></main>;
 }

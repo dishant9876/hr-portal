@@ -18,6 +18,22 @@ class Job(models.Model):
         ("contract", "Contract"),
     ]
 
+    EXPERIENCE_CHOICES = [
+        ("fresher", "Fresher (0 years)"),
+        ("1_2", "1–2 years"),
+        ("3_5", "3–5 years"),
+        ("6_9", "6–9 years"),
+        ("10_plus", "10+ years"),
+    ]
+
+    SALARY_PERIOD_CHOICES = [
+        ("hour", "Per hour"),
+        ("day", "Per day"),
+        ("week", "Per week"),
+        ("month", "Per month"),
+        ("year", "Per year"),
+    ]
+
     recruiter = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -40,22 +56,22 @@ class Job(models.Model):
 
     requirements = models.TextField()
 
-    salary = models.CharField(
-        max_length=100
-    )
+    salary = models.PositiveIntegerField()
+
+    salary_period = models.CharField(max_length=10, choices=SALARY_PERIOD_CHOICES, default="year")
 
     job_type = models.CharField(
         max_length=50,
         choices=JOB_TYPES
     )
 
-    experience_range = models.CharField(
-        max_length=100
-    )
+    experience = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES)
 
     created_at = models.DateTimeField(
         auto_now_add=True
     )
+
+    is_open = models.BooleanField(default=True)
 
     def __str__(self):
 

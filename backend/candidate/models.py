@@ -18,5 +18,17 @@ class Candidate(models.Model):
         blank=True
     )
 
+    skills = models.JSONField(default=list, blank=True)
+    work_experience = models.JSONField(default=list, blank=True)
+    education = models.JSONField(default=list, blank=True)
+    certifications = models.JSONField(default=list, blank=True)
+    awards = models.JSONField(default=list, blank=True)
+    hobbies = models.JSONField(default=list, blank=True)
+    other_details = models.TextField(blank=True, default="")
+    address = models.CharField(max_length=500, blank=True, default="")
+    job_title = models.CharField(max_length=255, blank=True, default="")
+    links = models.JSONField(default=list, blank=True)
+    projects = models.JSONField(default=list, blank=True)
+
     def __str__(self) -> str:
         return self.name

@@ -10,8 +10,9 @@ class JobAdmin(admin.ModelAdmin):
         "title",
         "company_name",
         "job_type",
-        "experience_range",
+        "experience",
         "salary",
+        "salary_period",
         "created_at",
     )
 

@@ -1,64 +1,13 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { ChevronDown, Pencil, Plus, Save, Trash2 } from "lucide-react";
 import api from "@/services/api";
-import { useRouter } from "next/navigation";
-
-export default function CandidateProfileCard() {
-  const router = useRouter();
-  const [candidate, setCandidate] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await api.get("/auth/profile/");
-        setCandidate(res.data);
-      } catch (err: any) {
-        console.error("Failed to fetch profile:", err);
-        if (err.response?.status === 401) {
-          // Token expired or invalid
-          setError("Your session has expired. Please log in again.");
-          // Redirect to login after a short delay
-          setTimeout(() => {
-            router.push("/auth/login");
-          }, 2000);
-        } else {
-          setError("Failed to load profile. Please try again.");
-          setCandidate({
-            name: "Unknown",
-            email: "unknown@example.com",
-            phone_number: "-",
-            years_of_experience: null,
-          });
-        }
-      }
-    };
-
-    fetchProfile();
-  }, [router]);
-
-  const display = candidate ?? {
-    name: "Loading...",
-    email: "",
-    phone_number: "",
-    years_of_experience: "",
-  };
-
-  return (
-    <div className="rounded-3xl bg-white p-8 shadow-lg">
-      <h1 className="text-3xl font-bold text-slate-900">Candidate Profile</h1>
-      {error && (
-        <div className="mt-4 rounded-lg bg-red-50 p-4 text-red-700">
-          {error}
-        </div>
-      )}
-      <div className="mt-6 space-y-4 text-slate-700">
-        <p><strong>Name:</strong> {display.name}</p>
-        <p><strong>Email:</strong> {display.email}</p>
-        <p><strong>Phone:</strong> {display.phone_number}</p>
-        <p><strong>Experience:</strong> {display.years_of_experience ?? '-'}</p>
-      </div>
-    </div>
-  );
-}
+import { useToastStore } from "@/store/toastStore";
+type RecordItem=Record<string,string>; type Profile=Record<string,unknown>&{name:string;email:string;phone_number:string;years_of_experience:number;address:string;job_title:string;links:RecordItem[];education:RecordItem[];work_experience:RecordItem[];skills:RecordItem[];projects:RecordItem[];certifications:RecordItem[];awards:string[];hobbies:string[];other_details:string};
+const blank:Profile={name:"",email:"",phone_number:"",years_of_experience:0,address:"",job_title:"",links:[],education:[],work_experience:[],skills:[],projects:[],certifications:[],awards:[],hobbies:[],other_details:""};
+const configs={links:{title:"Personal Info · Links",fields:["url","label","type"],defaults:{url:"",label:"",type:"LinkedIn"}},education:{title:"Education",fields:["institution","degree","field","start","end","grade"],defaults:{institution:"",degree:"",field:"",start:"",end:"",grade:""}},work_experience:{title:"Experience",fields:["employer","title","start","end","location","description"],defaults:{employer:"",title:"",start:"",end:"",location:"",description:""}},skills:{title:"Skillsets",fields:["category","name"],defaults:{category:"Languages",name:""}},projects:{title:"Projects",fields:["name","link","description"],defaults:{name:"",link:"",description:""}},certifications:{title:"Certifications",fields:["name","link","issuer"],defaults:{name:"",link:"",issuer:""}}} as const;
+const title=(x:string)=>x.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+export default function CandidateProfileCard(){const [p,setP]=useState<Profile>(blank),[edit,setEdit]=useState(false),[saving,setSaving]=useState(false);const toast=useToastStore(s=>s.addToast);useEffect(()=>{const t=setTimeout(async()=>{try{const {data}=await api.get("/auth/profile/");const normalize=(v:unknown)=>Array.isArray(v)?v.map(x=>typeof x==="string"?{name:x}:x):[];setP({...blank,...data,links:normalize(data.links),education:normalize(data.education),work_experience:normalize(data.work_experience),skills:normalize(data.skills),projects:normalize(data.projects),certifications:normalize(data.certifications)})}catch{toast("Unable to load profile.","error")}},0);return()=>clearTimeout(t)},[toast]);const save=async(e:FormEvent)=>{e.preventDefault();setSaving(true);try{await api.put("/auth/candidate/profile/update/",p);setEdit(false);toast("Profile updated.","success")}catch{toast("Unable to save profile.","error")}finally{setSaving(false)}};const update=(key:keyof typeof configs,i:number,f:string,v:string)=>setP(x=>({...x,[key]:(x[key] as RecordItem[]).map((r,n)=>n===i?{...r,[f]:v}:r)}));const add=(key:keyof typeof configs)=>setP(x=>({...x,[key]:[...(x[key] as RecordItem[]),{...configs[key].defaults}]}));const remove=(key:keyof typeof configs,i:number)=>setP(x=>({...x,[key]:(x[key] as RecordItem[]).filter((_,n)=>n!==i)}));return <form onSubmit={save} className="rounded-3xl bg-white p-8 shadow-lg"><header className="flex justify-between"><div><h1 className="text-3xl font-bold">Candidate Profile</h1><p className="mt-1 text-sm text-slate-500">Build a complete, recruiter-ready profile.</p></div>{edit?<button className="rounded-xl bg-slate-900 px-4 py-2 text-white"><Save size={16} className="mr-2 inline"/>{saving?"Saving…":"Save changes"}</button>:<button type="button" onClick={e=>{e.preventDefault();setEdit(true)}} className="rounded-xl bg-slate-900 px-4 py-2 text-white"><Pencil size={16} className="mr-2 inline"/>Edit</button>}</header><Panel title="Personal Info" open><div className="grid gap-4 sm:grid-cols-2"><Input label="Name" value={p.name} edit={edit} set={v=>setP({...p,name:v})}/><Input label="Email" value={p.email} edit={edit} set={v=>setP({...p,email:v})}/><Input label="Phone" value={p.phone_number} edit={edit} set={v=>setP({...p,phone_number:v})}/><Input label="Job Title" value={p.job_title} edit={edit} set={v=>setP({...p,job_title:v})}/><Input label="Address" value={p.address} edit={edit} set={v=>setP({...p,address:v})}/><Input label="Years of Experience" value={String(p.years_of_experience)} edit={edit} set={v=>setP({...p,years_of_experience:Number(v)})}/></div></Panel>{(Object.keys(configs) as Array<keyof typeof configs>).map(k=><Records key={k} k={k} rows={p[k] as RecordItem[]} edit={edit} update={update} add={add} remove={remove}/>)}</form>}
+function Panel({title,children,open=false}:{title:string;children:React.ReactNode;open?:boolean}){return <details open={open} className="mt-5 rounded-xl border"><summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 font-medium">{title}<ChevronDown size={18}/></summary><div className="border-t p-5">{children}</div></details>}
+function Input({label,value,set,edit}:{label:string;value:string;set:(v:string)=>void;edit:boolean}){return <label className="grid gap-1 text-sm">{label}<input disabled={!edit} value={value} onChange={e=>set(e.target.value)} className="rounded-lg border p-2.5 disabled:bg-slate-50"/></label>}
+function Records({k,rows,edit,update,add,remove}:{k:keyof typeof configs;rows:RecordItem[];edit:boolean;update:(k:keyof typeof configs,i:number,f:string,v:string)=>void;add:(k:keyof typeof configs)=>void;remove:(k:keyof typeof configs,i:number)=>void}){const c=configs[k];return <Panel title={c.title}>{rows.map((r,i)=><div key={i} className="mb-4 rounded-lg bg-slate-50 p-4"><div className="mb-3 flex justify-between font-medium">Entry {i+1}{edit&&<button type="button" onClick={()=>remove(k,i)}><Trash2 size={16}/></button>}</div><div className="grid gap-3 sm:grid-cols-2">{c.fields.map(f=><Input key={f} label={title(f)} value={r[f]||""} edit={edit} set={v=>update(k,i,f,v)}/>)}</div></div>)}{edit&&<button type="button" onClick={()=>add(k)} className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-sm"><Plus size={15}/>Add {c.title}</button>}</Panel>}

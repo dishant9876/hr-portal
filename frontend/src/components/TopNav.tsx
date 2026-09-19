@@ -14,7 +14,7 @@ import {
 } from "next/navigation";
 
 import {
-  LogOut,
+  LogOut, Layers3, ChevronDown,
 } from "lucide-react";
 
 import api from "@/services/api";
@@ -271,12 +271,13 @@ export default function TopNav() {
           <Link
             href="/"
             className="
+              brand-link
               text-lg
               font-bold
               text-slate-900
             "
           >
-            TalentBridge
+            <span className="brand-mark"><Layers3 size={20} /></span> Talent<span className="brand-accent">Bridge</span>
           </Link>
         </div>
 
@@ -311,7 +312,7 @@ export default function TopNav() {
                   text-white
                 "
               >
-                Login
+                Sign in
               </Link>
 
               <Link
@@ -327,7 +328,7 @@ export default function TopNav() {
                   text-slate-700
                 "
               >
-                Register
+                Get started ↗
               </Link>
             </div>
 
@@ -343,6 +344,9 @@ export default function TopNav() {
               {/* Avatar */}
 
               <button
+                aria-label="Account menu"
+                aria-expanded={showDropdown}
+                onKeyDown={(event) => { if (event.key === "Escape") setShowDropdown(false); }}
                 onClick={() =>
                   setShowDropdown(
                     !showDropdown
@@ -377,6 +381,7 @@ export default function TopNav() {
                 >
                   {initials}
                 </div>
+                <span className="account-name">{name}</span><ChevronDown size={14} />
               </button>
 
               {/* Dropdown */}

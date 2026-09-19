@@ -1,20 +1,12 @@
-import Sidebar from "@/components/Sidebar";
-import Navbar from "@/components/Navbar";
+"use client";
+import { useEffect, useState } from "react";
+import { BriefcaseBusiness, X } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-
-export default function CandidateApplicationsPage() {
-  return (
-    <ProtectedRoute requiredRole="candidate">
-      <div className="flex min-h-screen bg-slate-100">
-        <Sidebar />
-        <div className="ml-72 flex-1 p-8">
-          {/* <Navbar /> */}
-          <div className="mt-8 rounded-3xl bg-white p-8 shadow-md">
-            <h1 className="text-2xl font-semibold text-slate-900">My Applications</h1>
-            <p className="mt-4 text-slate-600">Track the status of your current applications.</p>
-          </div>
-        </div>
-      </div>
-    </ProtectedRoute>
-  );
-}
+import Sidebar from "@/components/Sidebar";
+import WorkspaceHero from "@/components/WorkspaceHero";
+import api from "@/services/api";
+import { useToastStore } from "@/store/toastStore";
+import type { PaginatedResults } from "@/types";
+type Application={id:number;status:string;status_note:string;applied_at:string;job_title:string;company_name:string;job_location:string;job_is_open:boolean;job_description:string;job_requirements:string;job_experience:string;job_salary:number;job_salary_period:string};
+function Content(){const [items,setItems]=useState<Application[]>([]),[selected,setSelected]=useState<Application|null>(null);const toast=useToastStore(s=>s.addToast);useEffect(()=>{const t=window.setTimeout(async()=>{try{const {data}=await api.get<PaginatedResults<Application>>("/candidate/applications/");setItems(data.results)}catch{toast("Unable to load your applications.","error")}},0);return()=>window.clearTimeout(t)},[toast]);return <div className="workspace-page flex"><Sidebar/><main className="workspace-content flex-1"><WorkspaceHero role="candidate" view="applications" /><section className="mt-8 rounded-3xl bg-white p-8 shadow-md"><h1 className="text-2xl font-semibold">My Applications</h1><p className="mt-2 text-slate-600">Click an application to review the complete job details and recruiter update.</p>{items.length===0?<div className="mt-10 text-center text-slate-600"><BriefcaseBusiness className="mx-auto"/>No applications yet.</div>:<div className="mt-7 grid gap-4">{items.map(a=><button key={a.id} onClick={()=>setSelected(a)} className="flex justify-between rounded-2xl border p-5 text-left hover:border-slate-400"><div><b>{a.job_title}</b><p className="text-sm">{a.company_name} · {a.job_location}</p>{a.status_note&&<p className="mt-2 text-sm">Recruiter update: {a.status_note}</p>}{!a.job_is_open&&<p className="mt-2 text-sm text-amber-800">Hiring has been closed as of now.</p>}</div><span className="h-fit rounded-full bg-slate-100 px-3 py-1 text-xs">{a.status}</span></button>)}</div>}</section></main>{selected&&<div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/40 p-4"><div className="mx-auto my-8 max-w-2xl rounded-3xl bg-white p-7"><button onClick={()=>setSelected(null)} className="float-right"><X/></button><h2 className="text-2xl font-semibold">{selected.job_title}</h2><p className="mt-1 text-slate-600">{selected.company_name} · {selected.job_location}</p><div className="mt-6 space-y-5 text-sm"><div><b>About the role</b><p className="mt-1 whitespace-pre-wrap">{selected.job_description}</p></div><div><b>Requirements</b><p className="mt-1 whitespace-pre-wrap">{selected.job_requirements}</p></div><p><b>Experience:</b> {selected.job_experience} &nbsp; <b>Salary:</b> {selected.job_salary.toLocaleString()} per {selected.job_salary_period}</p>{selected.status_note&&<div className="rounded-xl bg-slate-50 p-4"><b>Recruiter update</b><p className="mt-1">{selected.status_note}</p></div>}</div></div></div>}</div>}
+export default function CandidateApplicationsPage(){return <ProtectedRoute requiredRole="candidate"><Content/></ProtectedRoute>}

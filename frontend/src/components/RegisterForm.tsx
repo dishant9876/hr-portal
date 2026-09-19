@@ -55,10 +55,12 @@ export default function RegisterForm() {
     handleSubmit,
     setValue,
     reset,
+    formState: { isSubmitting },
   } = useForm<RegisterFormValues>({
     defaultValues: {
       role: "recruiter",
     },
+    shouldUnregister: true,
   });
 
   // -------------------------------------
@@ -156,10 +158,7 @@ export default function RegisterForm() {
           }),
       };
 
-      console.log(
-        "Payload:",
-        payload
-      );
+
 
       const response =
         await api.post(
@@ -253,15 +252,7 @@ export default function RegisterForm() {
 
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="
-        w-full
-        max-w-xl
-        space-y-6
-        rounded-3xl
-        bg-white
-        p-8
-        shadow-lg
-      "
+      className="auth-form register-form"
     >
 
       {/* Title */}
@@ -271,18 +262,19 @@ export default function RegisterForm() {
         font-bold
         text-slate-900
       ">
-        Register
+        Start your next chapter.
       </h1>
+      <p className="form-description">Create your account. Connect with possibility.</p>
 
       {/* Alert */}
 
-      {/* {alertMessage && (
+      {alertMessage && (
 
         <Alert
           type={alertType}
           message={alertMessage}
         />
-      )} */}
+      )}
 
       {/* Role Toggle */}
 
@@ -295,6 +287,7 @@ export default function RegisterForm() {
 
         <button
           type="button"
+          aria-pressed={role === "recruiter"}
           onClick={() => {
 
             setRole("recruiter");
@@ -323,6 +316,7 @@ export default function RegisterForm() {
 
         <button
           type="button"
+          aria-pressed={role === "candidate"}
           onClick={() => {
 
             setRole("candidate");
@@ -365,7 +359,7 @@ export default function RegisterForm() {
         sm:grid-cols-2
       ">
 
-        <input
+        <label className="register-label">Full name<input
           {...register("name", {
             required: true,
           })}
@@ -381,13 +375,13 @@ export default function RegisterForm() {
             outline-none
             focus:border-slate-900
           "
-        />
+        /></label>
 
-        <input
+        <label className="register-label">Email<input
           {...register("email", {
             required: true,
           })}
-          placeholder="Email"
+          type="email" autoComplete="email" placeholder="Email"
           className="
             w-full
             rounded-2xl
@@ -399,9 +393,9 @@ export default function RegisterForm() {
             outline-none
             focus:border-slate-900
           "
-        />
+        /></label>
 
-        <input
+        <label className="register-label">Password<input
           {...register("password", {
             required: true,
           })}
@@ -418,9 +412,9 @@ export default function RegisterForm() {
             outline-none
             focus:border-slate-900
           "
-        />
+        /></label>
 
-        <input
+        <label className="register-label">Phone Number<input
           {...register("phone_number", {
             required: true,
           })}
@@ -436,7 +430,7 @@ export default function RegisterForm() {
             outline-none
             focus:border-slate-900
           "
-        />
+        /></label>
       </div>
 
       {/* Recruiter Fields */}
@@ -449,7 +443,7 @@ export default function RegisterForm() {
           sm:grid-cols-2
         ">
 
-          <input
+          <label className="register-label">Company Name<input
             {...register(
               "company_name",
               {
@@ -468,9 +462,9 @@ export default function RegisterForm() {
               outline-none
               focus:border-slate-900
             "
-          />
+          /></label>
 
-          <input
+          <label className="register-label">Company Address<input
             {...register(
               "company_address",
               {
@@ -489,12 +483,12 @@ export default function RegisterForm() {
               outline-none
               focus:border-slate-900
             "
-          />
+          /></label>
         </div>
 
       ) : (
 
-        <input
+        <label className="register-label">Years of Experience<input
           {...register(
             "years_of_experience",
             {
@@ -503,7 +497,7 @@ export default function RegisterForm() {
             }
           )}
           type="number"
-          placeholder="Years of Experience"
+          min="0" placeholder="Years of Experience"
           className="
             w-full
             rounded-2xl
@@ -515,13 +509,14 @@ export default function RegisterForm() {
             outline-none
             focus:border-slate-900
           "
-        />
+        /></label>
       )}
 
       {/* Submit */}
 
       <button
         type="submit"
+        disabled={isSubmitting}
         className="
           w-full
           rounded-2xl
@@ -533,7 +528,7 @@ export default function RegisterForm() {
           hover:bg-slate-700
         "
       >
-        Register
+        {isSubmitting ? "Creating your account…" : "Create account →"}
       </button>
 
       {/* Login Link */}

@@ -6,6 +6,7 @@ import {
 } from "next/font/google";
 
 import "./globals.css";
+import AmbientGraphics from "@/components/AmbientGraphics";
 
 import Toaster from "@/components/Toaster";
 
@@ -40,6 +41,7 @@ export default function RootLayout({
 
     <html
       lang="en"
+      suppressHydrationWarning
       className={`
         ${geistSans.variable}
         ${geistMono.variable}
@@ -49,6 +51,7 @@ export default function RootLayout({
     >
 
       <body
+        suppressHydrationWarning
         className="
           min-h-full
           bg-slate-50
@@ -59,6 +62,7 @@ export default function RootLayout({
         {/* Global Auth Init */}
 
         <AuthInitializer />
+        <AmbientGraphics />
 
         {/* Navbar */}
 

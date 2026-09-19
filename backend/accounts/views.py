@@ -95,6 +95,15 @@ class ProfileView(APIView):
                 "name": candidate.name,
                 "phone_number": candidate.phone_number,
                 "years_of_experience": candidate.years_of_experience,
+                "skills": candidate.skills,
+                "work_experience": candidate.work_experience,
+                "education": candidate.education,
+                "certifications": candidate.certifications,
+                "awards": candidate.awards,
+                "hobbies": candidate.hobbies,
+                "other_details": candidate.other_details,
+                "address": candidate.address, "job_title": candidate.job_title,
+                "links": candidate.links, "projects": candidate.projects,
             })
             return Response(data, status=status.HTTP_200_OK)
         except Candidate.DoesNotExist:
@@ -182,3 +191,32 @@ class RecruiterProfileUpdateView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class CandidateProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        try:
+            candidate = Candidate.objects.get(user=request.user)
+        except Candidate.DoesNotExist:
+            return Response({"detail": "Candidate profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        data = request.data
+        for field in ("name", "phone_number", "years_of_experience", "skills", "work_experience", "education", "certifications", "awards", "hobbies", "other_details", "address", "job_title", "links", "projects"):
+            if field in data:
+                setattr(candidate, field, data[field])
+        candidate.save()
+        request.user.email = data.get("email", request.user.email)
+        request.user.save(update_fields=["email"])
+        candidate.email = request.user.email
+        candidate.save(update_fields=["email"])
+        return Response({
+            "name": candidate.name, "email": candidate.email, "phone_number": candidate.phone_number,
+            "years_of_experience": candidate.years_of_experience, "skills": candidate.skills,
+            "work_experience": candidate.work_experience, "education": candidate.education,
+            "certifications": candidate.certifications, "awards": candidate.awards,
+            "hobbies": candidate.hobbies, "other_details": candidate.other_details,
+            "address": candidate.address, "job_title": candidate.job_title,
+            "links": candidate.links, "projects": candidate.projects,
+        })
